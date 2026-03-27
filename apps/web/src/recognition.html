@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>识别演示 - 蝴蝶教育 Web Demo</title>
   <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
 </head>
 <body>
 <header>
@@ -28,11 +29,24 @@
   import { getRecognition } from './api.js';
 
   const output = document.getElementById('output');
+
+  function formatResult(result) {
+    return {
+      job_id: result.job_id,
+      candidates: result.candidates,
+      explanation: {
+        why_matched: result.explanation.why_matched,
+        quality_flags: result.explanation.quality_flags,
+        recommended_next_steps: result.explanation.recommended_next_steps,
+      },
+    };
+  }
+
   document.getElementById('load').addEventListener('click', async () => {
     try {
       const jobId = document.getElementById('jobId').value;
       const result = await getRecognition(jobId);
-      output.textContent = JSON.stringify(result, null, 2);
+      output.textContent = JSON.stringify(formatResult(result), null, 2);
     } catch (e) {
       output.textContent = String(e.message || e);
     }

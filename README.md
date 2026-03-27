@@ -1,28 +1,29 @@
 # wechat-butterfly
 
-本仓库当前已集成：
+本仓库当前关键实现：
 
+- Canonical 推理路径：`services/ml_inference`（已移除 `services/ml-inference` 重复路径）。
 - 统一题库协议与 `/api/v1/games/configs`。
 - 识别结果三段解释契约与 `/api/v1/recognition/jobs/:id`。
 - 分析事件统一上报接口 `/api/analytics/events`。
-- 描述解析日志文件持久化（`artifacts/describe_query_log.jsonl`）。
-- E2E 门禁脚本（mock 流程）+ 可选真实 API smoke 检查。
-- `apps/web` 公开 Demo 骨架（首页、百科检索、识别演示）。
+- 描述解析日志文件持久化：`artifacts/describe_query_log.jsonl`。
+- 同仓 Web Demo：`apps/web`（首页、浏览检索、识别演示，使用 shared runtime contracts 校验）。
 
-## 本地运行
+## 运行
 
-### API（按现有服务工程运行方式）
+### 根目录
 
-确保 `services/api/src/index.ts` 对外提供服务。
+```bash
+npm test
+npm run web:start
+```
 
-### Web Demo
+### Web Demo（可配置 API）
 
 ```bash
 cd apps/web
-npm start
+API_BASE_URL=http://localhost:3001 npm start
 ```
-
-默认监听 `http://localhost:3000`。
 
 ## E2E 门禁
 
