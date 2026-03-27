@@ -3,29 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>识别演示 - 蝴蝶教育 Web Demo</title>
+  <title>蝴蝶识别演示</title>
   <link rel="stylesheet" href="/styles.css" />
   <script src="/config.js"></script>
 </head>
 <body>
 <header>
-  <h1>蝴蝶识别演示</h1>
-  <nav>
-    <a href="/index.html">首页</a>
-    <a href="/browse.html">百科检索</a>
-    <a href="/recognition.html">识别演示</a>
-  </nav>
+  <div class="header-inner">
+    <div class="brand"><span class="brand-dot"></span>蝴蝶识别演示</div>
+    <nav>
+      <a href="/index.html">首页</a>
+      <a href="/browse.html">百科检索</a>
+      <a href="/recognition.html">识别演示</a>
+    </nav>
+  </div>
 </header>
+
 <main>
   <section class="card">
-    <h2>识别任务查询</h2>
-    <label>job_id</label>
-    <input id="jobId" value="rec_001" />
-    <button id="load">查询</button>
-    <p class="small" id="status">未加载</p>
+    <h2>识别输入</h2>
+    <div class="grid grid-2">
+      <div>
+        <label>任务 ID</label>
+        <input id="jobId" value="rec_001" />
+      </div>
+      <div>
+        <label>上传示例图（演示态）</label>
+        <input id="image" type="file" accept="image/*" />
+      </div>
+    </div>
+    <div class="row">
+      <button id="load">开始识别</button>
+      <span class="badge gray" id="status">未加载</span>
+    </div>
+  </section>
 
+  <section class="card">
+    <h2>识别结果</h2>
     <div class="result-box">
-      <h3>候选物种</h3>
+      <h3>候选物种（Top-K）</h3>
       <table id="candidate-table">
         <thead>
           <tr><th>物种</th><th>置信度</th></tr>
@@ -33,17 +49,25 @@
         <tbody></tbody>
       </table>
 
-      <h3>命中原因</h3>
-      <ul id="why-list"></ul>
-
-      <h3>质量标记</h3>
-      <ul id="quality-list"></ul>
-
-      <h3>建议下一步</h3>
-      <ul id="next-list"></ul>
+      <div class="grid grid-3" style="margin-top:12px;">
+        <div>
+          <h3>命中原因</h3>
+          <ul id="why-list"></ul>
+        </div>
+        <div>
+          <h3>质量标记</h3>
+          <ul id="quality-list"></ul>
+        </div>
+        <div>
+          <h3>建议下一步</h3>
+          <ul id="next-list"></ul>
+        </div>
+      </div>
     </div>
   </section>
 </main>
+
+<footer>Butterfly Education · Recognition Explainability</footer>
 
 <script type="module">
   import { getRecognition, getDemoMode } from './api.js';
@@ -56,7 +80,7 @@
 
   function renderList(el, items) {
     if (!items.length) {
-      el.innerHTML = '<li>无</li>';
+      el.innerHTML = '<li class="muted">无</li>';
       return;
     }
     el.innerHTML = items.map((item) => `<li>${item}</li>`).join('');
@@ -69,7 +93,9 @@
   }
 
   async function runRecognition() {
-    statusEl.textContent = '查询中...';
+    statusEl.textContent = '识别中...';
+    statusEl.className = 'badge gray';
+
     const jobId = document.getElementById('jobId').value;
     const result = await getRecognition(jobId);
 
@@ -78,12 +104,15 @@
     renderList(qualityList, result.explanation?.quality_flags || []);
     renderList(nextList, result.explanation?.recommended_next_steps || []);
 
-    statusEl.textContent = `模式=${getDemoMode()} | 数据源=${result.__demo?.source || 'api'}`;
+    const source = result.__demo?.source || 'api';
+    statusEl.textContent = `模式=${getDemoMode()} | 数据源=${source}`;
+    statusEl.className = `badge ${source === 'api' ? 'success' : 'warning'}`;
   }
 
   document.getElementById('load').addEventListener('click', () => {
     runRecognition().catch((e) => {
-      statusEl.textContent = '查询失败';
+      statusEl.textContent = '识别失败';
+      statusEl.className = 'badge warning';
       candidateBody.innerHTML = '';
       renderList(whyList, [String(e.message || e)]);
       renderList(qualityList, []);
@@ -93,6 +122,7 @@
 
   runRecognition().catch(() => {
     statusEl.textContent = '初始化失败';
+    statusEl.className = 'badge warning';
   });
 </script>
 </body>
