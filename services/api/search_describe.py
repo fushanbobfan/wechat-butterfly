@@ -4,6 +4,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from typing import Any
 
+from services.api.describe_query_log_repo import DescribeQueryLogRepository
 from services.ml_inference_adapter import parse_describe_query
 
 
@@ -17,8 +18,7 @@ class DescribeQueryLog:
     created_at: str
 
 
-# Demo in-memory persistence; wire this to DB in production.
-DESCRIBE_QUERY_LOGS: list[DescribeQueryLog] = []
+DESCRIBE_QUERY_LOG_REPO = DescribeQueryLogRepository()
 
 
 def describe_search(payload: dict[str, Any]) -> dict[str, Any]:
@@ -33,19 +33,18 @@ def describe_search(payload: dict[str, Any]) -> dict[str, Any]:
         "uncertain_terms": parse_result.uncertain_terms,
     }
 
-    DESCRIBE_QUERY_LOGS.append(
-        DescribeQueryLog(
-            raw_text=text,
-            parser_version=parse_result.parser_version,
-            parse_result=response,
-            rule_hits=parse_result.rule_hits,
-            returned_candidates=parse_result.candidates,
-            created_at=datetime.now(UTC).isoformat(),
-        )
+    log_item = DescribeQueryLog(
+        raw_text=text,
+        parser_version=parse_result.parser_version,
+        parse_result=response,
+        rule_hits=parse_result.rule_hits,
+        returned_candidates=parse_result.candidates,
+        created_at=datetime.now(UTC).isoformat(),
     )
+    DESCRIBE_QUERY_LOG_REPO.append(asdict(log_item))
 
     return response
 
 
 def dump_logs() -> list[dict[str, Any]]:
-    return [asdict(item) for item in DESCRIBE_QUERY_LOGS]
+    return DESCRIBE_QUERY_LOG_REPO.dump()

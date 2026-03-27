@@ -30,3 +30,15 @@ jobs:
         with:
           name: e2e-logs
           path: artifacts/e2e-logs
+
+  e2e-real-smoke:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.E2E_API_BASE_URL != '' }}
+    env:
+      API_BASE_URL: ${{ secrets.E2E_API_BASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run real API smoke checks
+        run: bash scripts/e2e/run_real_smoke.sh
