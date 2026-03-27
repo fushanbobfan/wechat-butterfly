@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>蝴蝶教育 Web</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="brand"><span class="brand-dot"></span>蝴蝶教育 Butterfly Education</div>
+    <nav>
+      <a href="/index.html">首页</a>
+      <a href="/browse.html">百科检索</a>
+      <a href="/recognition.html">识别演示</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>儿童友好的蝴蝶学习与识别平台</h1>
+    <p>同一套主档与标签体系，覆盖网页端和 App：可筛选、可学习、可识别、可解释。</p>
+    <div class="row">
+      <span class="badge success">已上线公开演示</span>
+      <span class="badge gray" id="mode"></span>
+    </div>
+  </section>
+
+  <section class="grid grid-3">
+    <article class="kpi"><strong>3+</strong><span class="small">核心演示链路</span></article>
+    <article class="kpi"><strong>Top-K</strong><span class="small">识别候选 + 可解释结果</span></article>
+    <article class="kpi"><strong>双端</strong><span class="small">Web 与 App 统一契约</span></article>
+  </section>
+
+  <section class="grid grid-2" style="margin-top:14px;">
+    <article class="card">
+      <h2>你现在可以做什么</h2>
+      <ul>
+        <li>在“百科检索”中按关键词、温度偏好筛选蝴蝶</li>
+        <li>浏览学习卡片（Flash Card）</li>
+        <li>在“识别演示”查看 Top-K 候选及解释字段</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <h2>为什么这不是静态页面</h2>
+      <div class="tip">
+        页面优先请求真实 API，后端不可用时才进入 fallback，且会在界面明确标注数据源。
+      </div>
+      <p class="small" style="margin-top:10px;">健康检查：<code>/healthz</code> ｜ 配置注入：<code>/config.js</code></p>
+    </article>
+  </section>
+</main>
+
+<footer>Butterfly Education · Web MVP</footer>
+
+<script type="module">
+  import { getDemoMode } from './api.js';
+  document.getElementById('mode').textContent = `模式：${getDemoMode()}`;
+</script>
+</body>
+</html>

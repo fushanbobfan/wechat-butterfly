@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>蝴蝶识别演示</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="brand"><span class="brand-dot"></span>蝴蝶识别演示</div>
+    <nav>
+      <a href="/index.html">首页</a>
+      <a href="/browse.html">百科检索</a>
+      <a href="/recognition.html">识别演示</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>识别输入</h2>
+    <div class="grid grid-2">
+      <div>
+        <label>任务 ID</label>
+        <input id="jobId" value="rec_001" />
+      </div>
+      <div>
+        <label>上传示例图（演示态）</label>
+        <input id="image" type="file" accept="image/*" />
+      </div>
+    </div>
+    <div class="row">
+      <button id="load">开始识别</button>
+      <span class="badge gray" id="status">未加载</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>识别结果</h2>
+    <div class="result-box">
+      <h3>候选物种（Top-K）</h3>
+      <table id="candidate-table">
+        <thead>
+          <tr><th>物种</th><th>置信度</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="grid grid-3" style="margin-top:12px;">
+        <div>
+          <h3>命中原因</h3>
+          <ul id="why-list"></ul>
+        </div>
+        <div>
+          <h3>质量标记</h3>
+          <ul id="quality-list"></ul>
+        </div>
+        <div>
+          <h3>建议下一步</h3>
+          <ul id="next-list"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>Butterfly Education · Recognition Explainability</footer>
+
+<script type="module">
+  import { getRecognition, getDemoMode } from './api.js';
+
+  const statusEl = document.getElementById('status');
+  const candidateBody = document.querySelector('#candidate-table tbody');
+  const whyList = document.getElementById('why-list');
+  const qualityList = document.getElementById('quality-list');
+  const nextList = document.getElementById('next-list');
+
+  function renderList(el, items) {
+    if (!items.length) {
+      el.innerHTML = '<li class="muted">无</li>';
+      return;
+    }
+    el.innerHTML = items.map((item) => `<li>${item}</li>`).join('');
+  }
+
+  function renderCandidates(candidates) {
+    candidateBody.innerHTML = candidates
+      .map((c) => `<tr><td>${c.label}</td><td>${(c.score * 100).toFixed(1)}%</td></tr>`)
+      .join('');
+  }
+
+  async function runRecognition() {
+    statusEl.textContent = '识别中...';
+    statusEl.className = 'badge gray';
+
+    const jobId = document.getElementById('jobId').value;
+    const result = await getRecognition(jobId);
+
+    renderCandidates(result.candidates || []);
+    renderList(whyList, result.explanation?.why_matched || []);
+    renderList(qualityList, result.explanation?.quality_flags || []);
+    renderList(nextList, result.explanation?.recommended_next_steps || []);
+
+    const source = result.__demo?.source || 'api';
+    statusEl.textContent = `模式=${getDemoMode()} | 数据源=${source}`;
+    statusEl.className = `badge ${source === 'api' ? 'success' : 'warning'}`;
+  }
+
+  document.getElementById('load').addEventListener('click', () => {
+    runRecognition().catch((e) => {
+      statusEl.textContent = '识别失败';
+      statusEl.className = 'badge warning';
+      candidateBody.innerHTML = '';
+      renderList(whyList, [String(e.message || e)]);
+      renderList(qualityList, []);
+      renderList(nextList, []);
+    });
+  });
+
+  runRecognition().catch(() => {
+    statusEl.textContent = '初始化失败';
+    statusEl.className = 'badge warning';
+  });
+</script>
+</body>
+</html>
