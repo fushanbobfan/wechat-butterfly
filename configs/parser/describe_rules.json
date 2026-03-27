@@ -1,0 +1,24 @@
+{
+  "version": "2026.03.27",
+  "uncertain_terms": ["常见", "附近", "可能"],
+  "rules": [
+    {
+      "id": "RULE_LONG_TAIL_GREEN",
+      "pattern": "绿色有长尾",
+      "candidate": "绿尾蜥",
+      "confidence": 0.86
+    },
+    {
+      "id": "RULE_NEAR_FARMLAND",
+      "pattern": "菜地附近",
+      "candidate": "菜园常见物种",
+      "confidence": 0.72
+    },
+    {
+      "id": "RULE_GREEN_GENERIC",
+      "pattern": "绿色",
+      "candidate": "泛绿色候选集合",
+      "confidence": 0.55
+    }
+  ]
+}
