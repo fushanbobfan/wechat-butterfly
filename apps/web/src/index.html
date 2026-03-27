@@ -18,10 +18,19 @@
 </header>
 <main>
   <section class="card">
-    <h2>公开演示站（同仓并行）</h2>
-    <p>这个 demo 直接连接仓库 API 契约：题库配置、识别结果、分析事件上报。</p>
-    <p class="small">通过环境变量 <code>API_BASE_URL</code> 注入后端地址（默认同域）。</p>
+    <h2>你可以在这个公开演示站看到什么</h2>
+    <ul>
+      <li>统一题库协议驱动的蝴蝶知识浏览与搜索</li>
+      <li>识别结果 Top-K 与解释字段（why_matched / quality_flags / recommended_next_steps）</li>
+      <li>共享契约校验 + 后端不可用时的显式后备模式</li>
+    </ul>
+    <p class="small" id="mode"></p>
+    <p class="small">健康检查：<code>/healthz</code></p>
   </section>
 </main>
+<script type="module">
+  import { getDemoMode } from './api.js';
+  document.getElementById('mode').textContent = `当前演示模式：${getDemoMode()}`;
+</script>
 </body>
 </html>

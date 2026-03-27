@@ -22,16 +22,19 @@
     <label>job_id</label>
     <input id="jobId" value="rec_001" />
     <button id="load">查询</button>
+    <p class="small" id="status">未加载</p>
     <pre id="output">点击“查询”查看识别结果…</pre>
   </section>
 </main>
 <script type="module">
-  import { getRecognition } from './api.js';
+  import { getRecognition, getDemoMode } from './api.js';
 
   const output = document.getElementById('output');
+  const statusEl = document.getElementById('status');
 
   function formatResult(result) {
     return {
+      source: result.__demo || { source: 'api' },
       job_id: result.job_id,
       candidates: result.candidates,
       explanation: {
@@ -42,14 +45,20 @@
     };
   }
 
-  document.getElementById('load').addEventListener('click', async () => {
-    try {
-      const jobId = document.getElementById('jobId').value;
-      const result = await getRecognition(jobId);
-      output.textContent = JSON.stringify(formatResult(result), null, 2);
-    } catch (e) {
+  async function runRecognition() {
+    statusEl.textContent = '查询中...';
+    output.textContent = '';
+    const jobId = document.getElementById('jobId').value;
+    const result = await getRecognition(jobId);
+    statusEl.textContent = `模式=${getDemoMode()} | 数据源=${result.__demo?.source || 'api'}`;
+    output.textContent = JSON.stringify(formatResult(result), null, 2);
+  }
+
+  document.getElementById('load').addEventListener('click', () => {
+    runRecognition().catch((e) => {
+      statusEl.textContent = '查询失败';
       output.textContent = String(e.message || e);
-    }
+    });
   });
 </script>
 </body>

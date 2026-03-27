@@ -23,6 +23,14 @@ const recognitionStore = new Map<string, RecognitionResult>([
 ]);
 
 recognitionRouter.get('/api/v1/recognition/jobs/:id', async (req, res) => {
+  const existing = recognitionStore.get(req.params.id);
+  if (!existing) {
+    return res.status(404).json({
+      code: 'RECOGNITION_JOB_NOT_FOUND',
+      message: `job ${req.params.id} not found`,
+    });
+  }
+
   try {
     const response = await getRecognitionJob(req.params.id, {
       async fetchByJobId(jobId: string): Promise<unknown> {
@@ -30,9 +38,9 @@ recognitionRouter.get('/api/v1/recognition/jobs/:id', async (req, res) => {
       },
     });
 
-    res.status(response.status).json(response.body);
+    return res.status(response.status).json(response.body);
   } catch (error) {
-    res.status(422).json({
+    return res.status(422).json({
       code: 'INVALID_RECOGNITION_RESULT',
       message: error instanceof Error ? error.message : 'unknown error',
     });

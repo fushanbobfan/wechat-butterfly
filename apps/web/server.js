@@ -6,8 +6,26 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT || 3000);
 const baseDir = path.join(__dirname, 'src');
+
+function resolveApiBaseUrl() {
+  const raw = (process.env.API_BASE_URL || '').trim();
+  if (!raw) {
+    return '';
+  }
+
+  try {
+    const parsed = new URL(raw);
+    return parsed.origin;
+  } catch {
+    console.warn(`[web-demo] invalid API_BASE_URL ignored: ${raw}`);
+    return '';
+  }
+}
+
+const apiBaseUrl = resolveApiBaseUrl();
+const demoMode = apiBaseUrl ? 'live-backend' : 'fixture-fallback';
 
 const mime = {
   '.html': 'text/html; charset=utf-8',
@@ -20,9 +38,14 @@ const mime = {
 const server = http.createServer((req, res) => {
   const url = req.url || '/';
 
+  if (url === '/healthz') {
+    res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ ok: true, service: 'web-demo', demo_mode: demoMode }));
+    return;
+  }
+
   if (url === '/config.js') {
-    const apiBaseUrl = process.env.API_BASE_URL || '';
-    const body = `window.__BUTTERFLY_CONFIG__ = { apiBaseUrl: ${JSON.stringify(apiBaseUrl)} };`;
+    const body = `window.__BUTTERFLY_CONFIG__ = { apiBaseUrl: ${JSON.stringify(apiBaseUrl)}, demoMode: ${JSON.stringify(demoMode)} };`;
     res.writeHead(200, { 'content-type': 'application/javascript; charset=utf-8' });
     res.end(body);
     return;
@@ -54,5 +77,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`web demo server listening on ${port}`);
+  console.log(`web demo server listening on ${port} (mode=${demoMode})`);
 });

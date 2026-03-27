@@ -18,37 +18,54 @@
 </header>
 <main>
   <section class="card">
-    <h2>题库浏览 / 搜索（复用统一协议）</h2>
+    <h2>题库浏览 / 搜索（统一契约）</h2>
     <label>关键词（物种ID/题干/特征标签）</label>
     <input id="query" placeholder="例如 papilio 或 antenna" />
     <button id="load">加载并搜索</button>
+    <p class="small" id="status">未加载</p>
     <pre id="output">输入关键词后点击“加载并搜索”...</pre>
   </section>
 </main>
 <script type="module">
-  import { getGameConfig, postAnalytics } from './api.js';
+  import { getGameConfig, postAnalytics, getDemoMode } from './api.js';
 
   const output = document.getElementById('output');
   const queryInput = document.getElementById('query');
+  const statusEl = document.getElementById('status');
 
-  document.getElementById('load').addEventListener('click', async () => {
-    try {
-      const config = await getGameConfig();
-      const keyword = (queryInput.value || '').trim().toLowerCase();
-      const matches = config.questions.filter((q) => {
-        const haystack = [q.stem, q.taxon_id, q.trait_tag, q.topic].join(' ').toLowerCase();
-        return keyword ? haystack.includes(keyword) : true;
-      });
-      await postAnalytics();
-      output.textContent = JSON.stringify({
-        config_id: config.config_id,
+  async function runSearch() {
+    statusEl.textContent = '加载中...';
+    output.textContent = '';
+
+    const config = await getGameConfig();
+    const keyword = (queryInput.value || '').trim().toLowerCase();
+    const matches = config.questions.filter((q) => {
+      const haystack = [q.stem, q.taxon_id, q.trait_tag, q.topic].join(' ').toLowerCase();
+      return keyword ? haystack.includes(keyword) : true;
+    });
+
+    const analyticsResult = await postAnalytics();
+
+    statusEl.textContent = `模式=${getDemoMode()} | 数据源=${config.__demo?.source || 'unknown'} | 命中=${matches.length}`;
+
+    output.textContent = JSON.stringify(
+      {
+        data_source: config.__demo || {},
+        analytics: analyticsResult,
         total_questions: config.questions.length,
         matched_questions: matches.length,
         matches,
-      }, null, 2);
-    } catch (e) {
+      },
+      null,
+      2,
+    );
+  }
+
+  document.getElementById('load').addEventListener('click', () => {
+    runSearch().catch((e) => {
+      statusEl.textContent = '加载失败';
       output.textContent = String(e.message || e);
-    }
+    });
   });
 </script>
 </body>

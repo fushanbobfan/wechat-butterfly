@@ -7,6 +7,10 @@ import recognitionRouter from './routes/recognition';
 const app = express();
 app.use(express.json());
 
+app.get('/healthz', (_req, res) => {
+  res.json({ ok: true, service: 'api' });
+});
+
 app.use(gamesRouter);
 app.use(learningRouter);
 app.use(analyticsRouter);

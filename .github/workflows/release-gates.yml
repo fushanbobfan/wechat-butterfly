@@ -31,6 +31,15 @@ jobs:
           name: e2e-logs
           path: artifacts/e2e-logs
 
+  web-demo-launch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify web demo launch path
+        run: npm run demo:verify
+
   e2e-real-smoke:
     runs-on: ubuntu-latest
     env:
