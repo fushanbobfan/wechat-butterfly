@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>蝴蝶教育 Web Demo</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
+</head>
+<body>
+<header>
+  <h1>蝴蝶教育 App（公开演示）</h1>
+  <nav>
+    <a href="/index.html">首页</a>
+    <a href="/browse.html">百科检索</a>
+    <a href="/recognition.html">识别演示</a>
+  </nav>
+</header>
+<main>
+  <section class="card">
+    <h2>面向小朋友学习 + 教师教学 + 图像识别</h2>
+    <p>这个演示站包含三条最小可体验链路：百科筛选、学习卡片、识别解释结果。</p>
+    <ul>
+      <li>百科检索：按关键词和温度偏好筛选蝴蝶</li>
+      <li>学习卡片：题库驱动的 Flash Card 提示</li>
+      <li>识别演示：Top-K 候选 + 命中原因 + 下一步建议</li>
+    </ul>
+    <p class="small" id="mode"></p>
+  </section>
+</main>
+<script type="module">
+  import { getDemoMode } from './api.js';
+  document.getElementById('mode').textContent = `当前演示模式：${getDemoMode()}`;
+</script>
+</body>
+</html>

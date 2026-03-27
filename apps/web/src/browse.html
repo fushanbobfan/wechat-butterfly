@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>百科检索 - 蝴蝶教育 Web Demo</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
+</head>
+<body>
+<header>
+  <h1>蝴蝶百科与筛选</h1>
+  <nav>
+    <a href="/index.html">首页</a>
+    <a href="/browse.html">百科检索</a>
+    <a href="/recognition.html">识别演示</a>
+  </nav>
+</header>
+<main>
+  <section class="card">
+    <h2>筛选检索</h2>
+    <label>关键词</label>
+    <input id="query" placeholder="例如 绿、Papilio、尾突" />
+    <label>温度偏好</label>
+    <select id="temperature">
+      <option value="">全部</option>
+      <option value="cold">cold</option>
+      <option value="temperate">temperate</option>
+      <option value="warm">warm</option>
+      <option value="hot">hot</option>
+    </select>
+    <button id="search">搜索</button>
+    <p class="small" id="status">未加载</p>
+    <div id="list"></div>
+  </section>
+
+  <section class="card">
+    <h2>学习卡片（Flash Card）</h2>
+    <button id="next-card">下一张</button>
+    <div id="flash-card" class="result-box"></div>
+  </section>
+</main>
+
+<script type="module">
+  import { getTaxa, getDemoMode, getGameConfig, postAnalytics } from './api.js';
+
+  const listEl = document.getElementById('list');
+  const statusEl = document.getElementById('status');
+  const queryEl = document.getElementById('query');
+  const tempEl = document.getElementById('temperature');
+  const flashEl = document.getElementById('flash-card');
+  let flashQuestions = [];
+  let flashIndex = 0;
+
+  function renderTaxa(rows) {
+    if (!rows.length) {
+      listEl.innerHTML = '<p>没有命中结果，请调整筛选条件。</p>';
+      return;
+    }
+
+    listEl.innerHTML = rows.map((row) => `
+      <article class="taxon-card">
+        <h3>${row.display_name_zh} <span class="small">(${row.scientific_name})</span></h3>
+        <p>${row.kid_summary}</p>
+        <p class="small">颜色：${row.primary_color} | 温度偏好：${row.temperature_preference.join(', ')}</p>
+      </article>
+    `).join('');
+  }
+
+  function renderFlashCard() {
+    if (!flashQuestions.length) {
+      flashEl.innerHTML = '<p>暂无学习卡片</p>';
+      return;
+    }
+    const q = flashQuestions[flashIndex % flashQuestions.length];
+    flashEl.innerHTML = `
+      <h3>${q.topic}</h3>
+      <p>${q.stem}</p>
+      <p class="small">特征标签：${q.trait_tag}</p>
+      <p class="small">提示：${q.explanation.details}</p>
+    `;
+  }
+
+  async function loadFlashCards() {
+    const config = await getGameConfig();
+    flashQuestions = config.questions || [];
+    renderFlashCard();
+  }
+
+  async function search() {
+    statusEl.textContent = '加载中...';
+    const keyword = queryEl.value || '';
+    const temperature = tempEl.value || '';
+    const result = await getTaxa(keyword, temperature);
+    await postAnalytics();
+    statusEl.textContent = `模式=${getDemoMode()} | 数据源=${result.source} | 命中=${result.rows.length}`;
+    renderTaxa(result.rows);
+  }
+
+  document.getElementById('search').addEventListener('click', () => {
+    search().catch((e) => {
+      statusEl.textContent = '加载失败';
+      listEl.innerHTML = `<p>${String(e.message || e)}</p>`;
+    });
+  });
+
+  document.getElementById('next-card').addEventListener('click', () => {
+    flashIndex += 1;
+    renderFlashCard();
+  });
+
+  loadFlashCards().catch(() => {
+    flashEl.innerHTML = '<p>学习卡片加载失败</p>';
+  });
+</script>
+</body>
+</html>
