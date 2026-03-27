@@ -9,7 +9,7 @@
 </head>
 <body>
 <header>
-  <h1>蝴蝶教育 Web Demo</h1>
+  <h1>蝴蝶教育 App（公开演示）</h1>
   <nav>
     <a href="/index.html">首页</a>
     <a href="/browse.html">百科检索</a>
@@ -18,14 +18,14 @@
 </header>
 <main>
   <section class="card">
-    <h2>你可以在这个公开演示站看到什么</h2>
+    <h2>面向小朋友学习 + 教师教学 + 图像识别</h2>
+    <p>这个演示站包含三条最小可体验链路：百科筛选、学习卡片、识别解释结果。</p>
     <ul>
-      <li>统一题库协议驱动的蝴蝶知识浏览与搜索</li>
-      <li>识别结果 Top-K 与解释字段（why_matched / quality_flags / recommended_next_steps）</li>
-      <li>共享契约校验 + 后端不可用时的显式后备模式</li>
+      <li>百科检索：按关键词和温度偏好筛选蝴蝶</li>
+      <li>学习卡片：题库驱动的 Flash Card 提示</li>
+      <li>识别演示：Top-K 候选 + 命中原因 + 下一步建议</li>
     </ul>
     <p class="small" id="mode"></p>
-    <p class="small">健康检查：<code>/healthz</code></p>
   </section>
 </main>
 <script type="module">

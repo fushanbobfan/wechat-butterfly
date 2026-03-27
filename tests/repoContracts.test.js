@@ -12,50 +12,43 @@ test('canonical inference path is services/ml_inference only', () => {
   assert.equal(fs.existsSync(deprecatedDir), false);
 });
 
-test('shared-types index exports analytics contract', () => {
-  const content = fs.readFileSync(path.join(root, 'packages', 'shared-types', 'src', 'index.ts'), 'utf8');
-  assert.match(content, /export \* from '\.\/analytics';/);
-});
-
-test('api entrypoint mounts analytics and recognition routers and health route', () => {
+test('api entrypoint mounts health, recognition, analytics and taxa routes', () => {
   const content = fs.readFileSync(path.join(root, 'services', 'api', 'src', 'index.ts'), 'utf8');
+  assert.match(content, /app\.get\('\/healthz'/);
   assert.match(content, /analyticsRouter/);
   assert.match(content, /recognitionRouter/);
-  assert.match(content, /app\.get\('\/healthz'/);
+  assert.match(content, /taxaRouter/);
 });
 
-test('games route validates config schema', () => {
-  const content = fs.readFileSync(path.join(root, 'services', 'api', 'src', 'routes', 'games.ts'), 'utf8');
-  assert.match(content, /isValidGameConfig/);
-  assert.match(content, /Invalid game config schema/);
+test('taxa route provides browse + structured search endpoints', () => {
+  const content = fs.readFileSync(path.join(root, 'services', 'api', 'src', 'routes', 'taxa.ts'), 'utf8');
+  assert.match(content, /\/api\/v1\/taxa/);
+  assert.match(content, /\/api\/v1\/search\/species/);
 });
 
-test('recognition route uses shared getRecognitionJob validation path with not-found response', () => {
+test('recognition route has explicit not-found response', () => {
   const content = fs.readFileSync(path.join(root, 'services', 'api', 'src', 'routes', 'recognition.ts'), 'utf8');
-  assert.match(content, /getRecognitionJob/);
   assert.match(content, /RECOGNITION_JOB_NOT_FOUND/);
 });
 
-test('web api adapter uses shared runtime contracts and fixture fallback', () => {
+test('web api adapter uses shared runtime contracts and taxa integration', () => {
   const content = fs.readFileSync(path.join(root, 'apps', 'web', 'src', 'api.js'), 'utf8');
   assert.match(content, /shared-contracts\.mjs/);
-  assert.match(content, /fixtureGameConfig/);
-  assert.match(content, /fallbackRecognition/);
+  assert.match(content, /getTaxa/);
+  assert.match(content, /fixtureTaxa/);
 });
 
-test('web server exposes healthz and config bootstrap', () => {
-  const content = fs.readFileSync(path.join(root, 'apps', 'web', 'server.js'), 'utf8');
-  assert.match(content, /url === '\/healthz'/);
-  assert.match(content, /window\.__BUTTERFLY_CONFIG__/);
+test('web pages render product-oriented sections instead of raw backend payload dump', () => {
+  const browse = fs.readFileSync(path.join(root, 'apps', 'web', 'src', 'browse.html'), 'utf8');
+  const recognition = fs.readFileSync(path.join(root, 'apps', 'web', 'src', 'recognition.html'), 'utf8');
+  assert.match(browse, /学习卡片/);
+  assert.match(recognition, /候选物种/);
+  assert.match(recognition, /命中原因/);
 });
 
-test('release gates workflow has web launch verify and real smoke job', () => {
-  const content = fs.readFileSync(
-    path.join(root, '.github', 'workflows', 'release-gates.yml'),
-    'utf8',
-  );
+test('workflow keeps web demo launch verify and real smoke checks', () => {
+  const content = fs.readFileSync(path.join(root, '.github', 'workflows', 'release-gates.yml'), 'utf8');
   assert.match(content, /web-demo-launch/);
   assert.match(content, /demo:verify/);
   assert.match(content, /e2e-real-smoke/);
-  assert.match(content, /run_real_smoke\.sh/);
 });

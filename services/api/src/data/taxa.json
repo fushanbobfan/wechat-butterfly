@@ -1,0 +1,29 @@
+[
+  {
+    "taxon_id": "tx_001",
+    "display_name_zh": "红纹绿凤蝶",
+    "scientific_name": "Papilio bianor",
+    "primary_color": "green",
+    "temperature_preference": ["warm", "hot"],
+    "habitat": ["forest_edge", "garden"],
+    "kid_summary": "翅面有绿色金属光泽，飞行敏捷。"
+  },
+  {
+    "taxon_id": "tx_002",
+    "display_name_zh": "安泰青凤蝶",
+    "scientific_name": "Graphium antheus",
+    "primary_color": "blue",
+    "temperature_preference": ["warm"],
+    "habitat": ["open_woodland"],
+    "kid_summary": "尾突明显，常在开阔地带活动。"
+  },
+  {
+    "taxon_id": "tx_003",
+    "display_name_zh": "可罗青凤蝶",
+    "scientific_name": "Graphium colonna",
+    "primary_color": "black",
+    "temperature_preference": ["temperate", "warm"],
+    "habitat": ["meadow", "garden"],
+    "kid_summary": "黑色底色配浅色条纹，容易和近似种混淆。"
+  }
+]

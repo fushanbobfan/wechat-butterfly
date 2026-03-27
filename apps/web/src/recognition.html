@@ -9,7 +9,7 @@
 </head>
 <body>
 <header>
-  <h1>识别演示</h1>
+  <h1>蝴蝶识别演示</h1>
   <nav>
     <a href="/index.html">首页</a>
     <a href="/browse.html">百科检索</a>
@@ -23,42 +23,76 @@
     <input id="jobId" value="rec_001" />
     <button id="load">查询</button>
     <p class="small" id="status">未加载</p>
-    <pre id="output">点击“查询”查看识别结果…</pre>
+
+    <div class="result-box">
+      <h3>候选物种</h3>
+      <table id="candidate-table">
+        <thead>
+          <tr><th>物种</th><th>置信度</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <h3>命中原因</h3>
+      <ul id="why-list"></ul>
+
+      <h3>质量标记</h3>
+      <ul id="quality-list"></ul>
+
+      <h3>建议下一步</h3>
+      <ul id="next-list"></ul>
+    </div>
   </section>
 </main>
+
 <script type="module">
   import { getRecognition, getDemoMode } from './api.js';
 
-  const output = document.getElementById('output');
   const statusEl = document.getElementById('status');
+  const candidateBody = document.querySelector('#candidate-table tbody');
+  const whyList = document.getElementById('why-list');
+  const qualityList = document.getElementById('quality-list');
+  const nextList = document.getElementById('next-list');
 
-  function formatResult(result) {
-    return {
-      source: result.__demo || { source: 'api' },
-      job_id: result.job_id,
-      candidates: result.candidates,
-      explanation: {
-        why_matched: result.explanation.why_matched,
-        quality_flags: result.explanation.quality_flags,
-        recommended_next_steps: result.explanation.recommended_next_steps,
-      },
-    };
+  function renderList(el, items) {
+    if (!items.length) {
+      el.innerHTML = '<li>无</li>';
+      return;
+    }
+    el.innerHTML = items.map((item) => `<li>${item}</li>`).join('');
+  }
+
+  function renderCandidates(candidates) {
+    candidateBody.innerHTML = candidates
+      .map((c) => `<tr><td>${c.label}</td><td>${(c.score * 100).toFixed(1)}%</td></tr>`)
+      .join('');
   }
 
   async function runRecognition() {
     statusEl.textContent = '查询中...';
-    output.textContent = '';
     const jobId = document.getElementById('jobId').value;
     const result = await getRecognition(jobId);
+
+    renderCandidates(result.candidates || []);
+    renderList(whyList, result.explanation?.why_matched || []);
+    renderList(qualityList, result.explanation?.quality_flags || []);
+    renderList(nextList, result.explanation?.recommended_next_steps || []);
+
     statusEl.textContent = `模式=${getDemoMode()} | 数据源=${result.__demo?.source || 'api'}`;
-    output.textContent = JSON.stringify(formatResult(result), null, 2);
   }
 
   document.getElementById('load').addEventListener('click', () => {
     runRecognition().catch((e) => {
       statusEl.textContent = '查询失败';
-      output.textContent = String(e.message || e);
+      candidateBody.innerHTML = '';
+      renderList(whyList, [String(e.message || e)]);
+      renderList(qualityList, []);
+      renderList(nextList, []);
     });
+  });
+
+  runRecognition().catch(() => {
+    statusEl.textContent = '初始化失败';
   });
 </script>
 </body>
