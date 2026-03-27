@@ -1,0 +1,11 @@
+{
+  "name": "butterfly-web-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync:contracts": "node scripts/sync-contracts.mjs",
+    "prestart": "npm run sync:contracts",
+    "start": "node server.js"
+  }
+}

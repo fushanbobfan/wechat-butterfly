@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>百科检索 - 蝴蝶教育 Web Demo</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
+</head>
+<body>
+<header>
+  <h1>百科检索</h1>
+  <nav>
+    <a href="/index.html">首页</a>
+    <a href="/browse.html">百科检索</a>
+    <a href="/recognition.html">识别演示</a>
+  </nav>
+</header>
+<main>
+  <section class="card">
+    <h2>题库浏览 / 搜索（复用统一协议）</h2>
+    <label>关键词（物种ID/题干/特征标签）</label>
+    <input id="query" placeholder="例如 papilio 或 antenna" />
+    <button id="load">加载并搜索</button>
+    <pre id="output">输入关键词后点击“加载并搜索”...</pre>
+  </section>
+</main>
+<script type="module">
+  import { getGameConfig, postAnalytics } from './api.js';
+
+  const output = document.getElementById('output');
+  const queryInput = document.getElementById('query');
+
+  document.getElementById('load').addEventListener('click', async () => {
+    try {
+      const config = await getGameConfig();
+      const keyword = (queryInput.value || '').trim().toLowerCase();
+      const matches = config.questions.filter((q) => {
+        const haystack = [q.stem, q.taxon_id, q.trait_tag, q.topic].join(' ').toLowerCase();
+        return keyword ? haystack.includes(keyword) : true;
+      });
+      await postAnalytics();
+      output.textContent = JSON.stringify({
+        config_id: config.config_id,
+        total_questions: config.questions.length,
+        matched_questions: matches.length,
+        matches,
+      }, null, 2);
+    } catch (e) {
+      output.textContent = String(e.message || e);
+    }
+  });
+</script>
+</body>
+</html>

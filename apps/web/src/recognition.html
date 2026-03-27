@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>识别演示 - 蝴蝶教育 Web Demo</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
+</head>
+<body>
+<header>
+  <h1>识别演示</h1>
+  <nav>
+    <a href="/index.html">首页</a>
+    <a href="/browse.html">百科检索</a>
+    <a href="/recognition.html">识别演示</a>
+  </nav>
+</header>
+<main>
+  <section class="card">
+    <h2>识别任务查询</h2>
+    <label>job_id</label>
+    <input id="jobId" value="rec_001" />
+    <button id="load">查询</button>
+    <pre id="output">点击“查询”查看识别结果…</pre>
+  </section>
+</main>
+<script type="module">
+  import { getRecognition } from './api.js';
+
+  const output = document.getElementById('output');
+
+  function formatResult(result) {
+    return {
+      job_id: result.job_id,
+      candidates: result.candidates,
+      explanation: {
+        why_matched: result.explanation.why_matched,
+        quality_flags: result.explanation.quality_flags,
+        recommended_next_steps: result.explanation.recommended_next_steps,
+      },
+    };
+  }
+
+  document.getElementById('load').addEventListener('click', async () => {
+    try {
+      const jobId = document.getElementById('jobId').value;
+      const result = await getRecognition(jobId);
+      output.textContent = JSON.stringify(formatResult(result), null, 2);
+    } catch (e) {
+      output.textContent = String(e.message || e);
+    }
+  });
+</script>
+</body>
+</html>
