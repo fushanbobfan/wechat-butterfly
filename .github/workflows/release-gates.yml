@@ -30,3 +30,28 @@ jobs:
         with:
           name: e2e-logs
           path: artifacts/e2e-logs
+
+  web-demo-launch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify web demo launch path
+        run: npm run demo:verify
+
+  e2e-real-smoke:
+    runs-on: ubuntu-latest
+    env:
+      API_BASE_URL: ${{ secrets.E2E_API_BASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run real API smoke checks
+        if: ${{ env.API_BASE_URL != '' }}
+        run: bash scripts/e2e/run_real_smoke.sh
+
+      - name: Skip real API smoke checks (missing E2E_API_BASE_URL)
+        if: ${{ env.API_BASE_URL == '' }}
+        run: echo "Skipping real smoke job because E2E_API_BASE_URL is not configured."

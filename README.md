@@ -1,62 +1,36 @@
 # wechat-butterfly
 
-本次实现包含以下能力：
+同仓公开演示站：`apps/web`
 
-1. **profile_version 快照表**：新增 SQL 迁移，按提交/发布/回滚保存完整 `snapshot_json`。
-2. **审核差异视图**：`apps/admin` 新增 `ProfileDiffView`，支持文本、标签、图片、外链对比。
-3. **发布门禁**：发布前校验主图、权威外链、基础标签、来源、授权字段。
-4. **审计日志增强**：`audit_log` 记录审核人、动作、差异摘要、发布时间、回滚点。
-5. **一键回滚**：支持回滚到上一个已发布版本并写入审计。
-
-> 详细逻辑位于 `backend/src/services/profileVersionService.ts`。
-## 本次实现概览
-
-- `services/api/search_describe.py`
-  - `/search/describe` 响应新增：`parser_version`、`rule_hits`、`uncertain_terms`。
-  - 写入 `DescribeQueryLog`（示例内存实现，便于接 DB）。
-- `services/ml-inference/parser` + `services/ml_inference/parser`
-  - 将规则迁移为可加载配置（YAML/JSON），并携带 `version`。
-- `database/migrations/20260327_add_describe_query_log.sql`
-  - 新增 `describe_query_log`。
-  - 提供 `recognition_record_describe_ext` 扩展表方案。
-- `apps/admin/rule_publish.py`
-  - 提供规则发布状态流转：`draft -> pending_review -> published`。
-- `tests/regression/describe_samples.json`
-  - 固定回归样例（如“绿色有长尾”“常见于菜地附近”）。
-## E2E 发布前门禁脚本
-
-已提供 3 个端到端关键场景脚本（移动端 / 教师 / 后台），并接入 CI：
-
-- `scripts/e2e/mobile_keyflow.sh`：5 分钟学习 + 小游戏 + 识别 + 百科检索。
-- `scripts/e2e/teacher_flow.sh`：筛选 -> 候选缩小 -> 打开详情 -> 保存专题。
-- `scripts/e2e/admin_publish_flow.sh`：新增物种 -> 提交审核 -> 审核发布 -> 前台可见。
-- `scripts/e2e/run_release_gates.sh`：统一串联以上场景，作为发布前必过门禁。
-- `.github/workflows/release-gates.yml`：CI 自动执行门禁并上传日志。
-
-## 日志定位信息
-
-失败时会输出并落盘结构化日志（JSONL），包含：
-
-- `request_id`
-- `taxon_id`
-- `job_id`
-
-默认路径：`artifacts/e2e-logs/*.jsonl`
-
-## 运行方式
-
-### 本地（默认 mock）
+## 快速验证（推荐）
 
 ```bash
-MOCK_MODE=1 bash scripts/e2e/run_release_gates.sh
+npm test
+pytest -q
+npm run demo:verify
 ```
 
-### 对接真实环境
+## 启动公开演示站
 
 ```bash
-MOCK_MODE=0 API_BASE_URL=https://your-api.example.com API_TOKEN=xxx bash scripts/e2e/run_release_gates.sh
+cd apps/web
+cp .env.example .env   # 可选
+API_BASE_URL=http://localhost:3001 npm start
 ```
 
-> 提示：
-> - `MOCK_MODE=1` 用于快速验证脚本编排与日志。
-> - `MOCK_MODE=0` 用于真实后端联调/发布前验收。
+- `API_BASE_URL` 为空时，演示站自动进入 `fixture-fallback` 模式（不会空白页）。
+- 健康检查：`/healthz`
+- 运行时配置注入：`/config.js`
+
+## 演示页面
+
+- `/index.html`：产品介绍与演示模式
+- `/browse.html`：题库浏览与关键词搜索
+- `/recognition.html`：识别候选与解释字段展示
+
+## CI
+
+`.github/workflows/release-gates.yml` 包含：
+- mock e2e gate
+- web demo launch 验证
+- 可选 real API smoke（依赖 `E2E_API_BASE_URL`）

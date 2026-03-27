@@ -4,6 +4,8 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "web:start": "cd apps/web && npm start",
+    "demo:verify": "bash scripts/demo/verify_launch.sh"
   }
 }

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>蝴蝶教育 Web Demo</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
+</head>
+<body>
+<header>
+  <h1>蝴蝶教育 Web Demo</h1>
+  <nav>
+    <a href="/index.html">首页</a>
+    <a href="/browse.html">百科检索</a>
+    <a href="/recognition.html">识别演示</a>
+  </nav>
+</header>
+<main>
+  <section class="card">
+    <h2>你可以在这个公开演示站看到什么</h2>
+    <ul>
+      <li>统一题库协议驱动的蝴蝶知识浏览与搜索</li>
+      <li>识别结果 Top-K 与解释字段（why_matched / quality_flags / recommended_next_steps）</li>
+      <li>共享契约校验 + 后端不可用时的显式后备模式</li>
+    </ul>
+    <p class="small" id="mode"></p>
+    <p class="small">健康检查：<code>/healthz</code></p>
+  </section>
+</main>
+<script type="module">
+  import { getDemoMode } from './api.js';
+  document.getElementById('mode').textContent = `当前演示模式：${getDemoMode()}`;
+</script>
+</body>
+</html>
