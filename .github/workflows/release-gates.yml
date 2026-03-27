@@ -1,0 +1,32 @@
+name: release-gates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+      - work
+  workflow_dispatch:
+
+jobs:
+  e2e-release-gates:
+    runs-on: ubuntu-latest
+    env:
+      MOCK_MODE: ${{ vars.E2E_MOCK_MODE || '1' }}
+      API_BASE_URL: ${{ secrets.E2E_API_BASE_URL }}
+      API_TOKEN: ${{ secrets.E2E_API_TOKEN }}
+      LOG_DIR: artifacts/e2e-logs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run release gate scenarios
+        run: bash scripts/e2e/run_release_gates.sh
+
+      - name: Upload e2e logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-logs
+          path: artifacts/e2e-logs
