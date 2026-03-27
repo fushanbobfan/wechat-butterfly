@@ -1,0 +1,13 @@
+[
+  {
+    "text": "绿色有长尾",
+    "expect_rule_hits": ["RULE_LONG_TAIL_GREEN", "RULE_GREEN_GENERIC"],
+    "must_include_candidates": ["绿尾蜥"]
+  },
+  {
+    "text": "常见于菜地附近",
+    "expect_rule_hits": ["RULE_NEAR_FARMLAND"],
+    "must_include_candidates": ["菜园常见物种"],
+    "expect_uncertain_terms": ["常见", "附近"]
+  }
+]

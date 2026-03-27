@@ -1,0 +1,38 @@
+{
+  "config_id": "default-cn-v1",
+  "version": "2026.03.27",
+  "locale": "zh-CN",
+  "published_at": "2026-03-27T00:00:00.000Z",
+  "questions": [
+    {
+      "id": "q-flash-001",
+      "mode": "flash-card",
+      "stem": "观察两种蝶类触角末端形态，哪一个是棒状触角？",
+      "topic": "形态识别",
+      "difficulty": "easy",
+      "age_band": "6-8",
+      "taxon_id": "lepidoptera:papilio_xuthus",
+      "trait_tag": "antenna_club_shape",
+      "options": [
+        {
+          "id": "opt-a",
+          "text": "A 图",
+          "is_correct": true,
+          "taxon_id": "lepidoptera:papilio_xuthus",
+          "trait_tag": "antenna_club_shape"
+        },
+        {
+          "id": "opt-b",
+          "text": "B 图",
+          "is_correct": false,
+          "taxon_id": "lepidoptera:moth_generic",
+          "trait_tag": "antenna_feather_shape"
+        }
+      ],
+      "explanation": {
+        "error_template": "尾突长度差异",
+        "details": "棒状触角末端增粗，常见于蝶类；羽状触角多见于蛾类。"
+      }
+    }
+  ]
+}
